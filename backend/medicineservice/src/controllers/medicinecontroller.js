@@ -53,13 +53,6 @@ export async function createMedicine(req, res) {
     }
 
 }
-// const createMedicine = async (req, res) => {
-
-//     const medicine = await medicineService.createMedicine(req.body);
-
-//     res.status(201).json(medicine);
-
-// };
 
 const getMedicines = async (req, res) => {
 

@@ -64,7 +64,9 @@ const getMedicines = async (req, res) => {
 
 const getMedicine = async (req, res) => {
 
-    const medicine = await medicineService.getMedicineById(req.params.id);
+    const medicine = await medicineService.getMedicineByCode(
+        req.params.medicineCode
+    );
 
     res.json(medicine);
 
@@ -84,7 +86,7 @@ export const updateMedicine = async (req, res) => {
         });
 
         // Update using validated data
-        const updatedMedicine = await medicineService.updateMedicine(
+        const updatedMedicine = await medicineService.updateMedicineByCode(
             req.params.medicineCode,
             validatedData
         );

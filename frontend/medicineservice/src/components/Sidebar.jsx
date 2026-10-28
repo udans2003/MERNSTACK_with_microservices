@@ -22,14 +22,14 @@ export default function Sidebar() {
           <FiGrid size={18} />
           Dashboard
         </button>
-        <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-slate-300 transition hover:bg-white/10 hover:text-white">
+        {/* <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-slate-300 transition hover:bg-white/10 hover:text-white">
           <FiHeart size={18} />
           Inventory health
         </button>
         <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm text-slate-300 transition hover:bg-white/10 hover:text-white">
           <FiSettings size={18} />
           Settings
-        </button>
+        </button> */}
       </nav>
 
       <div className="mx-4 mb-5 rounded-2xl bg-white/10 p-4">

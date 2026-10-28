@@ -10,13 +10,13 @@ function MedicineModal({ isOpen,
 
     return (
 
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#14213d]/55 p-4 backdrop-blur-sm">
 
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
 
-                <div className="flex justify-between items-center border-b px-6 py-4">
+                <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
 
-                    <h2 className="text-2xl font-bold">
+                    <h2 className="text-xl font-bold text-[#17233c]">
 
     {title}
 
@@ -24,7 +24,8 @@ function MedicineModal({ isOpen,
 
                     <button
                         onClick={onClose}
-                        className="text-2xl hover:text-red-500"
+                        aria-label="Close dialog"
+                        className="rounded-lg px-2 text-2xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
                     >
                         ×
                     </button>

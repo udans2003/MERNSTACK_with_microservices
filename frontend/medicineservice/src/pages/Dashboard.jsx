@@ -7,6 +7,7 @@ import MedicineTable from "../components/MedicineTable";
 import MedicineModal from "../components/MedicineModal";
 import MedicineForm from "../components/MedicineForm";
 import Sidebar from "../components/Sidebar";
+import { FiActivity, FiAlertCircle, FiBox, FiSearch } from "react-icons/fi";
 
 function Dashboard() {
 
@@ -17,8 +18,6 @@ function Dashboard() {
     const [selectedMedicine, setSelectedMedicine] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState("");
-
-    const [submitError, setSubmitError] = useState("");
 
     const filteredMedicines = medicines.filter((medicine) =>
     medicine.medicineName
@@ -50,28 +49,37 @@ function Dashboard() {
 
     return (
 
-        <div className="flex min-h-screen bg-gray-100">
+        <div className="flex min-h-screen bg-[#f5f7fb]">
            <Sidebar />
-            <div className="flex-1 p-8">
+            <div className="min-w-0 flex-1 px-5 py-6 sm:px-8 sm:py-9 lg:px-12">
 
                 <Header
                     onAddMedicine={() => {
                         setSelectedMedicine(null);
-                        setSubmitError("");
-                        setIsModalOpen(true);
-                    }}
+                        setIsModalOpen(true)}}
                 />
 
-                <div className="mb-6">
+                <div className="mb-7 grid gap-4 sm:grid-cols-3">
+                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between"><span className="rounded-xl bg-[#e4f7f4] p-2.5 text-[#2a9d8f]"><FiBox /></span><span className="text-xs font-semibold text-slate-400">TOTAL</span></div>
+                        <p className="text-3xl font-bold text-[#17233c]">{medicines.length}</p><p className="mt-1 text-sm text-slate-500">Medicines tracked</p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between"><span className="rounded-xl bg-[#eef0ff] p-2.5 text-[#5964d8]"><FiActivity /></span><span className="text-xs font-semibold text-slate-400">ACTIVE</span></div>
+                        <p className="text-3xl font-bold text-[#17233c]">{medicines.filter((medicine) => medicine.status === "Active").length}</p><p className="mt-1 text-sm text-slate-500">Available in inventory</p>
+                    </div>
+                    <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between"><span className="rounded-xl bg-[#fff3df] p-2.5 text-[#e5983e]"><FiAlertCircle /></span><span className="text-xs font-semibold text-slate-400">INACTIVE</span></div>
+                        <p className="text-3xl font-bold text-[#17233c]">{medicines.filter((medicine) => medicine.status === "Inactive").length}</p><p className="mt-1 text-sm text-slate-500">Need your attention</p>
+                    </div>
+                </div>
 
-                    <input
-                       type="text"
-                       placeholder="Search medicine..."
-                       value={searchTerm}
-                       onChange={(e) => setSearchTerm(e.target.value)}
-                       className="w-full md:w-96 border rounded-lg px-4 py-2"
-                    />
-
+                <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div><h2 className="text-lg font-bold text-[#17233c]">Your inventory</h2><p className="mt-1 text-sm text-slate-500">Review and manage all medicine records.</p></div>
+                    <div className="relative w-full sm:w-80">
+                        <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <input type="text" placeholder="Search medicines..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#2ec4b6] focus:ring-4 focus:ring-[#2ec4b6]/10" />
+                    </div>
                 </div>
 
                 <MedicineTable
@@ -81,8 +89,6 @@ function Dashboard() {
                    if (medicine.status === "Inactive") return;
 
                        setSelectedMedicine(medicine);
-
-                       setSubmitError("");
 
                        setIsModalOpen(true);
 
@@ -135,8 +141,6 @@ function Dashboard() {
 
                  setSelectedMedicine(null);
 
-                                 setSubmitError("");
-
                  setIsModalOpen(false);
 
              }}
@@ -145,10 +149,7 @@ function Dashboard() {
             <MedicineForm
 
                                medicine={selectedMedicine}
-                               submitError={submitError}
                                                    onSave= {async(data) => {
-
-                               setSubmitError("");
 
                                if (selectedMedicine) {
 
@@ -166,20 +167,9 @@ function Dashboard() {
 
                                    await loadMedicines();
 
-                                   setSelectedMedicine(null);
-
-                                   setIsModalOpen(false);
-
                                } catch (error) {
 
                                    console.error(error);
-
-                                   setSubmitError(
-                                       error?.response?.data?.message ||
-                                       error?.response?.data?.errors?.[0]?.message ||
-                                       error.message ||
-                                       "Failed to save medicine"
-                                   );
 
                                }
 
@@ -191,24 +181,18 @@ function Dashboard() {
 
                                    await loadMedicines();
 
-                                   setSelectedMedicine(null);
-
-                                   setIsModalOpen(false);
-
                                } catch (error) {
 
                                    console.error(error);
 
-                                   setSubmitError(
-                                       error?.response?.data?.message ||
-                                       error?.response?.data?.errors?.[0]?.message ||
-                                       error.message ||
-                                       "Failed to save medicine"
-                                   );
-
                                }
 
                            }
+
+
+                               setSelectedMedicine(null);
+
+                               setIsModalOpen(false);
 
                            }}
 
@@ -232,4 +216,3 @@ function Dashboard() {
 }
 
 export default Dashboard;
-

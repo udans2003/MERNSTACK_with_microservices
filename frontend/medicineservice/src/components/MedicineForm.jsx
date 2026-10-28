@@ -1,387 +1,98 @@
 import { useEffect, useState } from "react";
 
-function MedicineForm({ medicine,
+const emptyForm = {
+    medicineName: "",
+    category: "",
+    stock: "",
+    manufacturer: "",
+    expiryDate: ""
+};
 
-    onSave,
-
-    onCancel,
-
-    submitError }) {
-
-    const [formData, setFormData] = useState({
-
-        medicineCode: "",
-
-        medicineName: "",
-
-        category: "",
-
-        stock: "",
-
-        manufacturer: "",
-
-        // quantity: "",
-
-        expiryDate: ""
-
-    });
-
+function MedicineForm({ medicine, onSave, onCancel }) {
+    const [formData, setFormData] = useState(emptyForm);
     const [errors, setErrors] = useState({});
 
     useEffect(() => {
-
-    if (medicine) {
-
-        setFormData({
-
-            medicineCode: medicine.medicineCode || "",
-
+        setFormData(medicine ? {
             medicineName: medicine.medicineName || "",
-
             category: medicine.category || "",
-
             stock: medicine.stock || "",
-
             manufacturer: medicine.manufacturer || "",
-
             expiryDate: medicine.expiryDate || ""
+        } : emptyForm);
+        setErrors({});
+    }, [medicine]);
 
-        });
-
-    } else {
-
-        setFormData({
-
-            medicineCode: "",
-
-            medicineName: "",
-            category: "",
-            stock: "",
-            manufacturer: "",
-            // quantity: "",
-            expiryDate: ""
-
-        });
-
-    }
-
-}, [medicine]);
-
-    const handleChange = (e) => {
-
-    const { name, value } = e.target;
-
-    // Stock validation while typing
-    if (name === "stock") {
-
-        if (value !== "" && !/^\d+$/.test(value)) {
-
-            setErrors({
-                ...errors,
-                stock: "Stock must contain only numbers"
-            });
-
-        } else {
-
-            setErrors({
-                ...errors,
-                stock: ""
-            });
-
-        }
-    } else {
-
-        setErrors({
-            ...errors,
-            [name]: ""
-        });
-
-    }
-
-    setFormData({
-        ...formData,
-        [name]: value
-    });
-
-};
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData({ ...formData, [name]: value });
+        setErrors({ ...errors, [name]: "" });
+    };
 
     const validateForm = () => {
-
-    const newErrors = {};
-
-    if (!formData.medicineName.trim()) {
-        newErrors.medicineName = "Medicine name is required";
-    } else if (formData.medicineName.trim().length < 3) {
-        newErrors.medicineName = "Minimum 3 characters required";
-    }
-
-    if (!formData.medicineCode.trim()) {
-        newErrors.medicineCode = "Medicine code is required";
-    }
-
-    if (!formData.category) {
-        newErrors.category = "Please select a category";
-    }
-
-    if (!formData.manufacturer.trim()) {
-        newErrors.manufacturer = "Manufacturer is required";
-    }
-
-    if (!formData.stock) {
-
-    newErrors.stock = "Stock is required";
-
-} else if (!/^\d+$/.test(formData.stock)) {
-
-    newErrors.stock = "Stock must contain only numbers";
-
-} else if (Number(formData.stock) <= 0) {
-
-    newErrors.stock = "Stock must be greater than 0";
-
-}
-
-    if (!formData.expiryDate) {
-        newErrors.expiryDate = "Expiry date is required";
-    } else {
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        const expiry = new Date(formData.expiryDate);
-
-        if (expiry <= today) {
-            newErrors.expiryDate =
-                "Expiry date must be in the future";
+        const newErrors = {};
+        if (!formData.medicineName.trim()) newErrors.medicineName = "Medicine name is required";
+        else if (formData.medicineName.trim().length < 3) newErrors.medicineName = "Minimum 3 characters required";
+        if (!formData.category) newErrors.category = "Please select a category";
+        if (!formData.manufacturer.trim()) newErrors.manufacturer = "Manufacturer is required";
+        if (!formData.stock) newErrors.stock = "Stock is required";
+        else if (!/^\d+$/.test(formData.stock)) newErrors.stock = "Stock must contain only numbers";
+        else if (Number(formData.stock) <= 0) newErrors.stock = "Stock must be greater than 0";
+        if (!formData.expiryDate) {
+            newErrors.expiryDate = "Expiry date is required";
+        } else {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (new Date(formData.expiryDate) <= today) newErrors.expiryDate = "Expiry date must be in the future";
         }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-    }
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if (validateForm()) onSave(formData);
+    };
 
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-};
-
-    const handleSubmit = (e) => {
-
-    e.preventDefault();
-
-    console.log("Save clicked");
-
-    const valid = validateForm();
-
-    console.log("Validation:", valid);
-    console.log("Errors:", errors);
-    console.log("Data:", formData);
-
-    if(valid){
-        onSave(formData);
-    }
-
-};
-    
+    const fieldClass = (field) => `mt-2 w-full rounded-xl border bg-white px-4 py-3 text-sm text-[#17233c] outline-none transition placeholder:text-slate-400 focus:border-[#2ec4b6] focus:ring-4 focus:ring-[#2ec4b6]/10 ${errors[field] ? "border-red-400" : "border-slate-200"}`;
 
     return (
-
-    <form
-    onSubmit={handleSubmit}
-    className="space-y-4"
->
-
-    {submitError && (
-        <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {submitError}
-        </div>
-    )}
-
-    <div className="space-y-1">
-    <label
-        htmlFor="medicineCode"
-        className="block text-sm font-medium text-gray-700"
-    >
-        Medicine Code
-        <span className="text-red-500">*</span>
-    </label>
-
-    <input
-    id="medicineCode"
-    type="text"
-    name="medicineCode"
-    value={formData.medicineCode}
-    onChange={handleChange}
-    disabled={Boolean(medicine)}
-    className={`w-full rounded-lg px-4 py-2.5 border ${
-        errors.medicineCode
-            ? "border-red-500"
-            : formData.medicineCode
-            ? "border-green-500"
-            : "border-gray-300"
-    } focus:ring-2 focus:ring-blue-200 ${medicine ? "bg-gray-100" : ""}`}
-    placeholder="Enter medicine code"
-/> 
-
-{errors.medicineCode && (
-    <p className="text-red-500 text-sm mt-1">
-        {errors.medicineCode}
-    </p>
-)}
-</div>
-
-    <div className="space-y-1">
-    <label
-        htmlFor="medicineName"
-        className="block text-sm font-medium text-gray-700"
-    >
-        Medicine Name
-        <span className="text-red-500">*</span>
-    </label>
-
-    <input
-    id="medicineName"
-    type="text"
-    name="medicineName"
-    value={formData.medicineName}
-    onChange={handleChange}
-    className={`w-full rounded-lg px-4 py-2.5 border ${
-        errors.medicineName
-            ? "border-red-500"
-            : formData.medicineName
-            ? "border-green-500"
-            : "border-gray-300"
-    } focus:ring-2 focus:ring-blue-200`}
-    placeholder="Enter medicine name"
-/>
-
-{errors.medicineName && (
-    <p className="text-red-500 text-sm mt-1">
-        {errors.medicineName}
-    </p>
-)}
-</div>
-
-    <div className="space-y-1">
-    <label
-        htmlFor="category"
-        className="block text-sm font-medium text-gray-700"
-    >
-        Category
-        <span className="text-red-500">*</span>
-    </label>
-
-    <select
-        id="category"
-        name="category"
-        value={formData.category}
-        onChange={handleChange}
-        className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-        required
-    >
-        <option value="">Select Category</option>
-        <option>Tablet</option>
-        <option>Capsule</option>
-        <option>Syrup</option>
-        <option>Injection</option>
-    </select>
-</div>
-
-    <div className="space-y-1">
-    <label
-        htmlFor="medicineName"
-        className="block text-sm font-medium text-gray-700"
-    >
-        Manufacturer
-        <span className="text-red-500">*</span>
-    </label>
-    </div>
-            <input
-                type="text"
-                name="manufacturer"
-                placeholder="Enter manufacturer"
-                value={formData.manufacturer}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none"
-            />
-            {errors.manufacturer && (
-    <p className="text-red-500 text-sm mt-1">
-        {errors.manufacturer}
-    </p>
-)}
-    <div className="space-y-1">
-    <label
-        htmlFor="medicineName"
-        className="block text-sm font-medium text-gray-700"
-    >
-        Stock
-        <span className="text-red-500">*</span>
-    </label>
-    </div>
-            <input
-    type="text"
-    name="stock"
-    placeholder="Enter stock"
-    value={formData.stock}
-    onChange={handleChange}
-    className={`w-full rounded-lg px-4 py-2.5 border ${
-        errors.stock
-            ? "border-red-500"
-            : formData.stock
-            ? "border-green-500"
-            : "border-gray-300"
-    } focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none`}
-/>
-
-{errors.stock && (
-    <p className="text-red-500 text-sm mt-1">
-        {errors.stock}
-    </p>
-)}    
-
-    <div className="space-y-1">
-    <label
-        htmlFor="medicineName"
-        className="block text-sm font-medium text-gray-700"
-    >
-        Expiary Date
-        <span className="text-red-500">*</span>
-    </label>
-    </div>
-
-            <input
-                type="date"
-                name="expiryDate"
-                value={formData.expiryDate}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-4 py-2"
-            />
-            {errors.expiryDate && (
-    <p className="text-red-500 text-sm mt-1">
-        {errors.expiryDate}
-    </p>
-)}
-
-            <div className="md:col-span-2 flex justify-end gap-3 mt-4">
-
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    type="submit"
-                    className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                >
-                    Save
-                </button>
-
+        <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                    <label htmlFor="medicineName" className="text-sm font-semibold text-slate-700">Medicine name <span className="text-red-500">*</span></label>
+                    <input id="medicineName" type="text" name="medicineName" value={formData.medicineName} onChange={handleChange} className={fieldClass("medicineName")} placeholder="e.g. Paracetamol" />
+                    {errors.medicineName && <p className="mt-1.5 text-xs text-red-500">{errors.medicineName}</p>}
+                </div>
+                <div>
+                    <label htmlFor="category" className="text-sm font-semibold text-slate-700">Category <span className="text-red-500">*</span></label>
+                    <select id="category" name="category" value={formData.category} onChange={handleChange} className={fieldClass("category")}>
+                        <option value="">Select category</option><option>Tablet</option><option>Capsule</option><option>Syrup</option><option>Injection</option>
+                    </select>
+                    {errors.category && <p className="mt-1.5 text-xs text-red-500">{errors.category}</p>}
+                </div>
+                <div>
+                    <label htmlFor="manufacturer" className="text-sm font-semibold text-slate-700">Manufacturer <span className="text-red-500">*</span></label>
+                    <input id="manufacturer" type="text" name="manufacturer" value={formData.manufacturer} onChange={handleChange} className={fieldClass("manufacturer")} placeholder="e.g. ABC Pharma" />
+                    {errors.manufacturer && <p className="mt-1.5 text-xs text-red-500">{errors.manufacturer}</p>}
+                </div>
+                <div>
+                    <label htmlFor="stock" className="text-sm font-semibold text-slate-700">Stock quantity <span className="text-red-500">*</span></label>
+                    <input id="stock" type="text" name="stock" value={formData.stock} onChange={handleChange} className={fieldClass("stock")} placeholder="e.g. 100" />
+                    {errors.stock && <p className="mt-1.5 text-xs text-red-500">{errors.stock}</p>}
+                </div>
+                <div className="sm:col-span-2">
+                    <label htmlFor="expiryDate" className="text-sm font-semibold text-slate-700">Expiry date <span className="text-red-500">*</span></label>
+                    <input id="expiryDate" type="date" name="expiryDate" value={formData.expiryDate} onChange={handleChange} className={fieldClass("expiryDate")} />
+                    {errors.expiryDate && <p className="mt-1.5 text-xs text-red-500">{errors.expiryDate}</p>}
+                </div>
             </div>
-
+            <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
+                <button type="button" onClick={onCancel} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">Cancel</button>
+                <button type="submit" className="rounded-xl bg-[#2a9d8f] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#2a9d8f]/20 transition hover:bg-[#238b7f]">{medicine ? "Save changes" : "Add medicine"}</button>
+            </div>
         </form>
-
     );
-
-    };
+}
 
 export default MedicineForm;
